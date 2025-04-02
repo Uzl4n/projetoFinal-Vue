@@ -40,7 +40,7 @@ onMounted(() => {
 
                 btnCadastrar.value = true;
 
-                objeto.value.nota1 = value.nota1 + value.nota2;
+                objeto.value.media = (value.nota1 + value.nota2)/2;
                 
 
             });
@@ -63,7 +63,7 @@ onMounted(() => {
                 objeto.value.nota1 = 0;
                 objeto.value.nota2 = 0;
 
-                objeto.value.media = 3+3;
+                objeto.value.media = (value.nota1 + value.nota2)/2;
                  
             });
 
