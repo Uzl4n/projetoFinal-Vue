@@ -3,52 +3,42 @@
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
-
-
 import {  onMounted, ref } from 'vue';
 
-let notas = ref([]);
+    let objeto = ref({'id':0, 'aluno':'', 'nota1':0, 'nota2':0, 'media':0, 'situacao':''});     
 
-onMounted(() => {
+    let notas = ref([]);
+
+    //Visibilidade Button
+
+    let btnCadastrar = ref(true);
+
+    let termoFiltragem = ref('');
+
+    let vetor = ref ([]);
+
+    function filtrar(){
+        return notas.value.filter(obj => obj.aluno.toLowerCase().includes(termoFiltragem.value.toLowerCase()));
+    }
+
+    onMounted(() => {
          fetch('http://localhost:3000/notas')
             .then(requisicao => requisicao.json())
                 .then(retorno => notas.value = retorno);
     }); 
-
-
-    //Requisições POST
-
-    let objeto = ref({'id':0, 'aluno':'', 'nota1':0, 'nota2':0, 'media':0, 'situacao':''});
-
-    let valor2 = 10;
-    let valor1 = 2;
-
-    function media(){
-        fetch(`http://localhost:3000/notas/${objeto.value.id}`, {
-            method:'PUT',
-            body:JSON.stringify(objeto.value),
-            headers:{'Content-Type':'application/json'}
-        })
-            .then(requisicao => requisicao.json())
-            .then(retorno => {
-
-                let indiceAluno = notas.value.findIndex(ObjetoP => {
-                    return ObjetoP.id === retorno.id;
-                });
-                
-                notas.value[indiceAluno] = retorno;
-
-                btnCadastrar.value = true;
-
-                objeto.value.media = (value.nota1 + value.nota2)/2;
-                
-
-            });
-    }
-
+    
 
     function cadastrar(event){
         
+        objeto.value.media    = (objeto.value.nota1 + objeto.value.nota2)/2;
+
+        objeto.value.situacao = objeto.value.media >= 7 ? 'Aprovado' : objeto.value.media >= 5 ? 'Em exame': 'Reprovado';
+
+        if(objeto.value.aluno == null){
+            
+            alert('Formulário invalidado');
+        }
+
         fetch('http://localhost:3000/notas', {
             method:'POST',
             body:JSON.stringify(objeto.value),
@@ -57,76 +47,81 @@ onMounted(() => {
             .then(requisicao => requisicao.json())
             .then(retorno => {
 
+           
+
+                
+
                 notas.value.push(retorno)
 
                 objeto.value.aluno  = '';
-                objeto.value.nota1 = 0;
-                objeto.value.nota2 = 0;
-
-                objeto.value.media = (value.nota1 + value.nota2)/2;
+                objeto.value.nota1  = 0;
+                objeto.value.nota2  = 0;
+                objeto.value.media  = 0;  
                  
             });
 
-        event.preventDefault();
+                 event.preventDefault();
     }
 
     function editar(){
+
+        objeto.value.media = (objeto.value.nota1 + objeto.value.nota2)/2;
+
+        objeto.value.situacao = objeto.value.media >= 7 ? 'Aprovado' : objeto.value.media >= 5 ? 'Em exame': 'Reprovado';
         
-        fetch(`http://localhost:3000/notas/${objeto.value.id}`, {
-            method:'PUT',
-            body:JSON.stringify(objeto.value),
-            headers:{'Content-Type':'application/json'}
-        })
-            .then(requisicao => requisicao.json())
-            .then(retorno => {
+            fetch(`http://localhost:3000/notas/${objeto.value.id}`, {
+                method:'PUT',
+                body:JSON.stringify(objeto.value),
+                headers:{'Content-Type':'application/json'}
+            })
+                .then(requisicao => requisicao.json())
+                .then(retorno => {
 
-                let indiceAluno = notas.value.findIndex(ObjetoP => {
-                    return ObjetoP.id === retorno.id;
-                });
+                    let indiceAluno = notas.value.findIndex(ObjetoP => {
+                        return ObjetoP.id === retorno.id;
+                    });
                 
-                notas.value[indiceAluno] = retorno;
+                        notas.value[indiceAluno] = retorno;
 
-                btnCadastrar.value = true;
+                        btnCadastrar.value = true;
 
-                objeto.value.id = 0;
-                objeto.value.aluno= '';
-                objeto.value.nota1 = 5;
-                objeto.value.nota2 = 5;
+                        objeto.value.id    = 0;
+                        objeto.value.aluno = '';
+                        objeto.value.nota1 = 0;
+                        objeto.value.nota2 = 0;
                 
-
-            });
-
-            
+            });      
 
     }
 
     function remover(){
         
-        fetch(`http://localhost:3000/notas/${objeto.value.id}`, {
-            method:'DELETE',
-            
-            headers:{'Content-Type':'application/json'}
-        })
-            .then(requisicao => requisicao.json())
-            .then(() => {
-
-                let indiceAluno = notas.value.findIndex(ObjetoP => {
-                    return ObjetoP.id === objeto.value.id;
-                });
+            fetch(`http://localhost:3000/notas/${objeto.value.id}`, {
+                method:'DELETE',
                 
-                notas.value.splice(indiceAluno, 1);
+                headers:{'Content-Type':'application/json'}
+            })
+                .then(requisicao => requisicao.json())
+                .then(() => {
 
-                btnCadastrar.value = true;
+                    let indiceAluno = notas.value.findIndex(ObjetoP => {
+                        return ObjetoP.id === objeto.value.id;
+                    });
+                
+                        notas.value.splice(indiceAluno, 1);
 
-                objeto.value.id = 0;
-                objeto.value.produto= '';
-                objeto.value.valor = 0;
+                        btnCadastrar.value = true;
+
+                        objeto.value.id = 0;
+                        objeto.value.produto= '';
+                        objeto.value.valor = 0;
+
             });
-
     }
 
     function selecionar(indice){
-            objeto.value = {
+
+        objeto.value = {
 
             id:     notas.value[indice].id,
             aluno:  notas.value[indice].aluno,
@@ -134,49 +129,57 @@ onMounted(() => {
             nota2:  notas.value[indice].nota2
         }
 
-        btnCadastrar.value = false;
+    
+                btnCadastrar.value = false;
+            
+             
     }
+    
+    const alunoValidation = [
+        value => {
+            if(value) return true;
 
-    //Visibilidade Button
-
-    let btnCadastrar = ref(true);
-
+            return 'O email é obrigatório';
+        }
+    ];
 
 </script>
 
-<style>
-
-        form{
-            width: 50%;
-            margin: 25px auto;
-            text-align: center;
-        }
-
-        input{
-            margin-bottom: 10px;
-        }
-
-        .espacamentoBtn{
-
-            margin-left: 5px;
-            margin-right: 5px;
-
-        }
-</style>
 
 <template>
 
-    <h1>Notas Escolares</h1>
-        {{ console.log(valor2 + valor1) }}
-        {{ console.log(nota1) }}
+    <h1 class="nt">Notas Escolares</h1>
+    
         <form @submit="cadastrar">
-            <input type="hidden" v-model="objeto.id">
-            <input type="text" placeholder="Nome" class="form-control" v-model="objeto.aluno">
+
+           
+
+
+            <!-- Filtragem -->
+        <div class="row">
+                <div class="col-12">
+                    <input type="text" v-model="termoFiltragem" placeholder="Qual aluno você está procurando?" class="form-control pesquisa">
+
+                    <div class="alunos">
+                    <p v-if="filtrar().length == 0">Não foi encontrado nenhum Aluno.</p>
+                    <p v-else-if="filtrar().length == 1">Foi encontrado apenas um Aluno.</p>
+                    <p v-else>Foram encontrados {{ filtrar().length }} alunos.</p>
+                    </div>
+
+                </div>
+        </div>
+
+
+        <input type="hidden" v-model="objeto.id">
+            <input type="text" placeholder="Nome" class="form-control" v-model="objeto.aluno" :rules="alunoValidation">
             <input type="number" placeholder="Primeira Nota" class="form-control" v-model="objeto.nota1">
             <input type="number" placeholder="Segunda Nota" class="form-control" v-model="objeto.nota2">
             <input type="submit" v-if="btnCadastrar" placeholder="Cadastrar" class="btn btn-primary">
             <input type="button" @click="editar" v-if="!btnCadastrar" value="Editar" class="btn btn-primary espacamentoBtn">
             <input type="button" @click="remover" v-if="!btnCadastrar" value="Remover" class="btn btn-primary">
+
+
+
         </form>
     
         <table class="table table-striped">
@@ -191,16 +194,16 @@ onMounted(() => {
             </thead>
             
             <tbody>
-                <tr v-for="(p, indice) in notas">
-                    <td>{{ p.aluno }}</td>
-                    <td>{{ p.nota1 }}</td>
-                    <td>{{ p.nota2 }}</td>
-                    <td>{{ p.media }}</td>
-                    <td>{{ p.situacao }}</td>
+                <tr vclass="col-12 col-sm-6 col-md-4 col-lg-3" v-for="(p, indice) in filtrar()">
+
+                        <td>{{ p.aluno }}</td>
+                        <td>{{ p.nota1 }}</td>
+                        <td>{{ p.nota2 }}</td>
+                        <td>{{ p.media }}</td>
+                        <td>{{ p.situacao }}</td>
 
                     <td><button @click="selecionar(indice)" class="btn btn-primary">Selecionar</button></td>
                 </tr>
             </tbody>
         </table>
-
 </template>
