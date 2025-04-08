@@ -30,14 +30,18 @@ import {  onMounted, ref } from 'vue';
 
     function cadastrar(event){
         
+
+         // Verificar os campos
+        if (!objeto.value.aluno) {
+            alert("Por favor, preencha o nome do aluno e as notas.");
+            return; // Sem cadastro
+        }
+
+
         objeto.value.media    = (objeto.value.nota1 + objeto.value.nota2)/2;
 
         objeto.value.situacao = objeto.value.media >= 7 ? 'Aprovado' : objeto.value.media >= 5 ? 'Em exame': 'Reprovado';
 
-        if(objeto.value.aluno == null){
-            
-            alert('Formulário invalidado');
-        }
 
         fetch('http://localhost:3000/notas', {
             method:'POST',
@@ -112,9 +116,10 @@ import {  onMounted, ref } from 'vue';
 
                         btnCadastrar.value = true;
 
-                        objeto.value.id = 0;
-                        objeto.value.produto= '';
-                        objeto.value.valor = 0;
+                        objeto.value.aluno  = '';
+                        objeto.value.nota1  = 0;
+                        objeto.value.nota2  = 0;
+                        objeto.value.media  = 0; 
 
             });
     }
