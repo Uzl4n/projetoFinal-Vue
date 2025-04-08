@@ -31,10 +31,14 @@ import {  onMounted, ref } from 'vue';
     function cadastrar(event){
         
 
-         // Verificar os campos
+            // Verificar os campos
         if (!objeto.value.aluno) {
-            alert("Por favor, preencha o nome do aluno e as notas.");
-            return; // Sem cadastro
+            alert("Por favor, preencha o nome do aluno.");
+            return; // Sem aluno
+        }
+        if (objeto.value.nota1 > 10 || objeto.value.nota2 > 10) {
+            alert("Por favor, preencha a nota entre 0 a 10.");
+            return; // Sem nota
         }
 
 
